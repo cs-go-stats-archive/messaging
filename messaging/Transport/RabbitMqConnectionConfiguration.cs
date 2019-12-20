@@ -1,4 +1,4 @@
-﻿using CSGOStats.Infrastructure.Messaging.Extensions;
+﻿using CSGOStats.Infrastructure.Validation;
 
 namespace CSGOStats.Infrastructure.Messaging.Transport
 {
