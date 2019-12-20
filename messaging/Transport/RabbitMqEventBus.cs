@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CSGOStats.Infrastructure.Messaging.Extensions;
 using CSGOStats.Infrastructure.Messaging.Handling;
+using CSGOStats.Infrastructure.Validation;
 using EasyNetQ;
 using IMessage = CSGOStats.Infrastructure.Messaging.Payload.IMessage;
 

@@ -1,2 +1,4 @@
-./project_folder/bin/
-./project_folder/obj/
+./messaging/bin/
+./messaging/obj/
+./messaging-tests/bin/
+./messaging-tests/obj/
