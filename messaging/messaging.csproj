@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>CSGOStats.Infrastructure.Messaging</AssemblyName>
+    <RootNamespace>CSGOStats.Infrastructure.Messaging</RootNamespace>
+    <Version>0.1.0</Version>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageId>CSGOStats.Infrastructure.Messaging</PackageId>
+    <Authors />
+    <Company />
+    <Product />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="EasyNetQ" Version="3.7.1" />
+  </ItemGroup>
+
+</Project>

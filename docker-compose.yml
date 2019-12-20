@@ -1,0 +1,15 @@
+version: '2'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.8.2-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    container_name: rabbitmq
+    networks:
+      - prime
+
+networks:
+  prime:
+    driver: bridge
