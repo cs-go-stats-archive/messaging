@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 using CSGOStats.Infrastructure.Messaging.Handling;
+using CSGOStats.Infrastructure.Messaging.Tests.Handlers;
 using CSGOStats.Infrastructure.Messaging.Tests.Model;
 using CSGOStats.Infrastructure.Messaging.Tests.State;
 using CSGOStats.Infrastructure.Messaging.Transport;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace CSGOStats.Infrastructure.Messaging.Tests
@@ -14,15 +16,19 @@ namespace CSGOStats.Infrastructure.Messaging.Tests
         [Fact]
         public async Task PublishSubscribeTestAsync()
         {
-            using var bus = new RabbitMqEventBus(new RabbitMqConnectionConfiguration(
-                "localhost",
-                5672,
-                "guest",
-                "guest",
-                1000));
+            using var bus = new RabbitMqEventBus(
+                configuration: new RabbitMqConnectionConfiguration(
+                    host: "localhost",
+                    port: 5672,
+                    username: "guest",
+                    password: "guest",
+                    heartbeat: 1000),
+                serviceProvider: new ServiceCollection()
+                    .AddTransient<IHandler, TestHandler>()
+                    .BuildServiceProvider());
 
             var handler = new TestHandler();
-            bus.Register(handler);
+            bus.RegisterForType(typeof(TestMessage));
 
             var random = new Random();
             var message = new TestMessage(
@@ -41,14 +47,5 @@ namespace CSGOStats.Infrastructure.Messaging.Tests
             SharedData.Message.Data.Time.Should().Be(message.Data.Time);
         }
 
-    }
-
-    public class TestHandler : IMessageHandler<TestMessage>
-    {
-        public Task HandleAsync(TestMessage message)
-        {
-            SharedData.Message = message;
-            return Task.CompletedTask;
-        }
     }
 }

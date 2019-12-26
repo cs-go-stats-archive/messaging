@@ -1,3 +1,7 @@
+# v0.2.0
+## Changed
+* Logic of message subscription to be independent from generic arguments.
+
 # v0.1.2
 ## Changed
 * Upgrade of infrastructure packages.
