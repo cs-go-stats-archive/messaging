@@ -1,11 +1,16 @@
-﻿using System.Threading.Tasks;
-using CSGOStats.Infrastructure.Messaging.Payload;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace CSGOStats.Infrastructure.Messaging.Handling
 {
-    public interface IMessageHandler<in T> 
-        where T : class, IMessage
+    public interface IHandler
     {
-        Task HandleAsync(T message);
+    }
+
+    internal interface IMessageHandler : IHandler
+    {
+        Type HandlingType { get; }
+
+        Task HandleAsync(object message);
     }
 }

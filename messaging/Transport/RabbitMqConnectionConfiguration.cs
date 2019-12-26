@@ -17,10 +17,10 @@ namespace CSGOStats.Infrastructure.Messaging.Transport
         public RabbitMqConnectionConfiguration(string host, int port, string username, string password, int heartbeat)
         {
             Host = host.NotNull(nameof(host));
-            Port = port.Positive(nameof(port)).LessThan(ushort.MaxValue, nameof(port));
+            Port = port.Positive(nameof(port)).LessThanOrEqual(ushort.MaxValue, nameof(port));
             Username = username.NotNull(nameof(username));
             Password = password.NotNull(nameof(password));
-            Heartbeat = heartbeat.Positive(nameof(heartbeat)).LessThan(ushort.MaxValue, nameof(heartbeat));
+            Heartbeat = heartbeat.Positive(nameof(heartbeat)).LessThanOrEqual(ushort.MaxValue, nameof(heartbeat));
         }
     }
 }

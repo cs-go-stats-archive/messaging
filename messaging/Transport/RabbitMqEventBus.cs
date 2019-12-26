@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSGOStats.Extensions.Validation;
 using CSGOStats.Infrastructure.Messaging.Handling;
 using EasyNetQ;
+using EasyNetQ.FluentConfiguration;
+using EasyNetQ.NonGeneric;
+using Microsoft.Extensions.DependencyInjection;
 using IMessage = CSGOStats.Infrastructure.Messaging.Payload.IMessage;
 
 namespace CSGOStats.Infrastructure.Messaging.Transport
@@ -10,10 +14,12 @@ namespace CSGOStats.Infrastructure.Messaging.Transport
     public class RabbitMqEventBus : IEventBus, IMessageRegistrar
     {
         private readonly IBus _bus;
+        private readonly IServiceProvider _serviceProvider;
 
-        public RabbitMqEventBus(RabbitMqConnectionConfiguration configuration)
+        public RabbitMqEventBus(RabbitMqConnectionConfiguration configuration, IServiceProvider serviceProvider)
         {
             configuration.NotNull(nameof(configuration));
+            _serviceProvider = serviceProvider.NotNull(nameof(serviceProvider));
 
             _bus = RabbitHutch.CreateBus(
                 hostName: configuration.Host,
@@ -27,17 +33,31 @@ namespace CSGOStats.Infrastructure.Messaging.Transport
 
         public void Dispose() => _bus.Dispose();
 
-        public Task PublishAsync(IMessage message) => _bus.SendAsync(GetQueueName(message.GetType()), message);
+        public Task PublishAsync(IMessage message) =>
+            _bus.SendAsync(GetQueueName(message.GetType()), message);
 
-        public void Register<T>(IMessageHandler<T> handler)
-            where T : class, IMessage
+        public void RegisterForType(Type type) =>
+            _bus.SubscribeAsync(
+                messageType: type,
+                subscriptionId: Guid.NewGuid().ToString("D"),
+                onMessage: HandleMessageAsync,
+                configure: configuration => SubscriptionConfiguration(configuration, type));
+
+        private Task HandleMessageAsync(object rawMessage)
         {
-            _bus.SubscribeAsync<T>(Guid.NewGuid().ToString(), handler.HandleAsync, configuration =>
-            {
-                configuration.WithQueueName(GetQueueName(typeof(T)));
-            });
+            var messageHandler = FindCorrespondingHandler(rawMessage);
+            return messageHandler == null ? Task.CompletedTask : messageHandler.HandleAsync(rawMessage);
         }
 
+        private IMessageHandler FindCorrespondingHandler(object message) =>
+            _serviceProvider
+                .GetServices<IHandler>()
+                .Cast<IMessageHandler>()
+                .SingleOrDefault(x => x.HandlingType == message.NotNull(nameof(message)).GetType());
+
         private static string GetQueueName(Type type) => type.Assembly.GetName().Name;
+
+        private static void SubscriptionConfiguration(ISubscriptionConfiguration configuration, Type messageType) =>
+            configuration.WithQueueName(GetQueueName(messageType));
     }
 }
