@@ -1,3 +1,7 @@
+# v0.1.2
+## Changed
+* Upgrade of infrastructure packages.
+
 # v0.1.1
 ## Added
 * NuGet configuration with Nexus link.

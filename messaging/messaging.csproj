@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>CSGOStats.Infrastructure.Messaging</AssemblyName>
     <RootNamespace>CSGOStats.Infrastructure.Messaging</RootNamespace>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageId>CSGOStats.Infrastructure.Messaging</PackageId>
     <Authors />
@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CSGOStats.Infrastructure.Validation" Version="0.1.1" />
+    <PackageReference Include="CSGOStats.Extensions.Validation" Version="0.1.3" />
     <PackageReference Include="EasyNetQ" Version="3.7.1" />
   </ItemGroup>
 
