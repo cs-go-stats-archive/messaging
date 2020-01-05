@@ -7,7 +7,7 @@ namespace CSGOStats.Infrastructure.Messaging.Handling
     {
     }
 
-    internal interface IMessageHandler : IHandler
+    public interface IMessageHandler : IHandler
     {
         Type HandlingType { get; }
 

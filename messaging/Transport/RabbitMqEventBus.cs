@@ -1,8 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CSGOStats.Extensions.Extensions;
 using CSGOStats.Extensions.Validation;
+using CSGOStats.Infrastructure.Messaging.Config;
 using CSGOStats.Infrastructure.Messaging.Handling;
+using CSGOStats.Infrastructure.Messaging.Handling.Pipeline;
 using EasyNetQ;
 using EasyNetQ.FluentConfiguration;
 using EasyNetQ.NonGeneric;
@@ -43,21 +47,33 @@ namespace CSGOStats.Infrastructure.Messaging.Transport
                 onMessage: HandleMessageAsync,
                 configure: configuration => SubscriptionConfiguration(configuration, type));
 
-        private Task HandleMessageAsync(object rawMessage)
+        private async Task HandleMessageAsync(object rawMessage)
         {
-            var messageHandler = FindCorrespondingHandler(rawMessage);
-            return messageHandler == null ? Task.CompletedTask : messageHandler.HandleAsync(rawMessage);
-        }
+            using var scope = _serviceProvider.CreateScope();
+            var messageHandlers = FindCorrespondingHandlers(rawMessage, scope.ServiceProvider);
+            if (!messageHandlers.Any())
+            {
+                return;
+            }
 
-        private IMessageHandler FindCorrespondingHandler(object message) =>
-            _serviceProvider
-                .GetServices<IHandler>()
-                .Cast<IMessageHandler>()
-                .SingleOrDefault(x => x.HandlingType == message.NotNull(nameof(message)).GetType());
+            await CreatePipeline(_serviceProvider).RunAsync(messageHandlers, rawMessage);
+        }
 
         private static string GetQueueName(Type type) => type.Assembly.GetName().Name;
 
         private static void SubscriptionConfiguration(ISubscriptionConfiguration configuration, Type messageType) =>
             configuration.WithQueueName(GetQueueName(messageType));
+
+        private static IReadOnlyCollection<IMessageHandler> FindCorrespondingHandlers(object message, IServiceProvider serviceProvider) =>
+            serviceProvider
+                .GetServices<IHandler>()
+                .Cast<IMessageHandler>()
+                .Where(x => x.HandlingType == message.NotNull(nameof(message)).GetType())
+                .ToArrayFast();
+
+        private static IPipeline CreatePipeline(IServiceProvider serviceProvider) =>
+            new RetryingPipeline(
+                pipes: serviceProvider.GetServices<IPipe>(),
+                retrySetting: serviceProvider.GetService<RetrySetting>());
     }
 }

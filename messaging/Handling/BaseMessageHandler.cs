@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using CSGOStats.Infrastructure.Extensions;
+using CSGOStats.Extensions.Extensions;
 using CSGOStats.Infrastructure.Messaging.Payload;
 
 namespace CSGOStats.Infrastructure.Messaging.Handling
