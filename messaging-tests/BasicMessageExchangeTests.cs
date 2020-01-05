@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using CSGOStats.Infrastructure.Messaging.Config;
 using CSGOStats.Infrastructure.Messaging.Handling;
 using CSGOStats.Infrastructure.Messaging.Tests.Handlers;
 using CSGOStats.Infrastructure.Messaging.Tests.Model;
@@ -25,9 +26,9 @@ namespace CSGOStats.Infrastructure.Messaging.Tests
                     heartbeat: 1000),
                 serviceProvider: new ServiceCollection()
                     .AddTransient<IHandler, TestHandler>()
+                    .AddSingleton(new RetrySetting(1))
                     .BuildServiceProvider());
 
-            var handler = new TestHandler();
             bus.RegisterForType(typeof(TestMessage));
 
             var random = new Random();
