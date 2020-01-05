@@ -1,9 +1,7 @@
-# v0.3
+# v0.2.1
 ## Added
 * Message handling pipeline.
 * Messaging related services registration.
-
-# v0.2.1
 ## Changed
 * Fixed RabbitMQ message handle that occured always in global DI scope.
 
